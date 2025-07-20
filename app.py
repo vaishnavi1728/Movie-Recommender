@@ -1,13 +1,30 @@
 from flask import Flask, render_template, request
 import pickle
 import pandas as pd
+import os
+import requests
 
 app = Flask(__name__)
 
-# Load data
+# Function to download file if not present
+def download_file(url, filename):
+    print(f"Downloading {filename} from {url}...")
+    response = requests.get(url)
+    response.raise_for_status()
+    with open(filename, 'wb') as f:
+        f.write(response.content)
+
+# Load movie_dict.pkl (assumed to be already present in the repo)
 movie_dict = pickle.load(open('movie_dict.pkl', 'rb'))
 movies = pd.DataFrame(movie_dict)
+
+# Check and download similarity.pkl if not exists
+if not os.path.exists('similarity.pkl'):
+    download_file('https://drive.google.com/uc?id=1pyAF7YQyIJeGiTt5NvIGXgANuMg-aA7G', 'similarity.pkl')
+
+# Load similarity.pkl
 similarity = pickle.load(open('similarity.pkl', 'rb'))
+
 
 def recommend(movie):
     movie = movie.lower().strip()
