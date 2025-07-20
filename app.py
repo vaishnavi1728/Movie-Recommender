@@ -2,17 +2,14 @@ from flask import Flask, render_template, request
 import pickle
 import pandas as pd
 import os
-import requests
+import gdown
 
 app = Flask(__name__)
 
 # Function to download file if not present
 def download_file(url, filename):
     print(f"Downloading {filename} from {url}...")
-    response = requests.get(url)
-    response.raise_for_status()
-    with open(filename, 'wb') as f:
-        f.write(response.content)
+    gdown.download(url, filename, quiet=False)
 
 # Load movie_dict.pkl (assumed to be already present in the repo)
 movie_dict = pickle.load(open('movie_dict.pkl', 'rb'))
@@ -24,7 +21,6 @@ if not os.path.exists('similarity.pkl'):
 
 # Load similarity.pkl
 similarity = pickle.load(open('similarity.pkl', 'rb'))
-
 
 def recommend(movie):
     movie = movie.lower().strip()
@@ -49,7 +45,7 @@ def index():
 
     if request.method == 'POST':
         selected_movie = request.form.get('movie')
-        print(f"Selected movie: '{selected_movie}'")  # For debugging
+        print(f"Selected movie: '{selected_movie}'")
 
         if not selected_movie:
             error = "Please select a movie."
